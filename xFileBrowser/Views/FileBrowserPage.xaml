@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="xFileBrowser.Views.FileBrowserPage">
+    <ContentPage.Content>
+		<Grid RowSpacing="1" ColumnSpacing="0" BackgroundColor="#555555" Padding="0,0,0,0">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="40"/>
+				<RowDefinition Height="40"/>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+			<StackLayout Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" Spacing="0" BackgroundColor="#2b2b2b">
+				<Label x:Name="CurrFolderName" Text="Current Folder Name" HorizontalOptions="FillAndExpand" FontSize="18" FontAttributes="Bold" LineBreakMode="TailTruncation" Padding="15,0,5,0"
+					   BackgroundColor="Transparent" TextColor="#ebebeb"  VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
+				<Button TextColor="#ebebeb" BackgroundColor="#2b2b2b" HorizontalOptions="End"
+						BorderWidth="0" Text="&#xF1075;" WidthRequest="60"
+						FontSize="22" FontFamily="materialdesignicons-webfont.ttf#Material Design Icons"/>
+			</StackLayout>
+			<StackLayout HorizontalOptions="FillAndExpand" Orientation="Horizontal" Grid.Row="1" Grid.ColumnSpan="2" Spacing="0" BackgroundColor="#2b2b2b">
+				<Button Clicked="ButtonUp_Clicked" TextColor="#ebebeb" HorizontalOptions="Start"
+						BackgroundColor="#2b2b2b" BorderWidth="0" 
+						Text="&#xF005D;" FontSize="22" WidthRequest="60"
+						FontFamily="materialdesignicons-webfont.ttf#Material Design Icons"/>
+				<Label x:Name="CurrFolderPath" Text="Current Folder Path" HorizontalOptions="FillAndExpand" FontSize="11" LineBreakMode="TailTruncation" Padding="10,0,5,0" MaxLines="2"
+					   BackgroundColor="Transparent"  TextColor="#ebebeb" VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
+				<Button TextColor="#ebebeb"  BackgroundColor="#2b2b2b" HorizontalOptions="End"
+						BorderWidth="0"  Text="&#xF01D8;" WidthRequest="60"
+						FontSize="22" FontFamily="materialdesignicons-webfont.ttf#Material Design Icons"/>
+			</StackLayout>
+			<ListView Grid.Row="2" Grid.ColumnSpan="2" x:Name="DirectoryList" ItemSelected="OnListViewItemSelected" SeparatorColor="Black" BackgroundColor="#2b2b2b">
+				<ListView.ItemTemplate>
+					<DataTemplate>
+						<ViewCell>
+							<StackLayout Orientation="Horizontal" Padding="13,5,0,5">
+								<Image BackgroundColor="Transparent" HorizontalOptions="Start" VerticalOptions="Start">
+									<Image.Source>
+										<FontImageSource Glyph="{Binding Icon}"
+											FontFamily="materialdesignicons-webfont.ttf#Material Design Icons"
+											Size="32" Color="{Binding IconColor}" />
+									</Image.Source>
+								</Image>
+								<StackLayout Orientation="Vertical" Spacing="0">
+									<Label Text="{Binding Name}" TextColor="#ebebeb" FontSize="12" LineBreakMode="TailTruncation" MaxLines="1"
+										   BackgroundColor="Transparent" VerticalOptions="Fill" HorizontalOptions="Fill"
+										   VerticalTextAlignment="Center" />
+									<Label Text="{Binding ItemInfo}" TextColor="#b8b8b8" FontSize="9" LineBreakMode="TailTruncation" MaxLines="1"
+										   BackgroundColor="Transparent" VerticalOptions="Fill" HorizontalOptions="Fill"
+										   VerticalTextAlignment="Start"/>
+								</StackLayout>
+							</StackLayout>
+						</ViewCell>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
+		</Grid>
+	</ContentPage.Content>
+</ContentPage>
