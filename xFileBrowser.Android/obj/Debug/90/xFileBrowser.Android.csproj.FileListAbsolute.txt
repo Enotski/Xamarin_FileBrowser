@@ -478,3 +478,4 @@ B:\WorkShop\xFileBrowser\xFileBrowser.Android\obj\Debug\90\stamp\_ConvertResourc
 B:\WorkShop\xFileBrowser\xFileBrowser.Android\obj\Debug\90\stamp\_GenerateJavaStubs.stamp
 B:\WorkShop\xFileBrowser\xFileBrowser.Android\obj\Debug\90\stamp\_GeneratePackageManagerJava.stamp
 B:\WorkShop\xFileBrowser\xFileBrowser.Android\obj\Debug\90\stamp\_ResolveLibraryProjectImports.stamp
+B:\WorkShop\xFileBrowser\xFileBrowser.Android\obj\Debug\90\android\src\crc64c71f552d2b85c42c\PageExtensions_EmbeddedDialogFragment.java

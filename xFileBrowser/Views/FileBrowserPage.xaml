@@ -3,61 +3,85 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+
              mc:Ignorable="d"
              x:Class="xFileBrowser.Views.FileBrowserPage">
-    <ContentPage.Content>
-		<Grid RowSpacing="1" ColumnSpacing="0" BackgroundColor="#555555" Padding="0,0,0,0">
-			<Grid.RowDefinitions>
-				<RowDefinition Height="40"/>
-				<RowDefinition Height="40"/>
-				<RowDefinition Height="Auto"/>
-			</Grid.RowDefinitions>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*"/>
-			</Grid.ColumnDefinitions>
-			<StackLayout Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" Spacing="0" BackgroundColor="#2b2b2b">
-				<Label x:Name="CurrFolderName" Text="Current Folder Name" HorizontalOptions="FillAndExpand" FontSize="18" FontAttributes="Bold" LineBreakMode="TailTruncation" Padding="15,0,5,0"
+	<ContentPage.Content>
+		<RelativeLayout>
+			<Grid x:Name="ContentGrid" RelativeLayout.WidthConstraint="{ConstraintExpression
+            Type=RelativeToParent,Property=Width,Factor=1,Constant=0}"
+        RelativeLayout.HeightConstraint="{ConstraintExpression
+            Type=RelativeToParent,Property=Height,Factor=1,Constant=0}"
+				RowSpacing="1" ColumnSpacing="0" BackgroundColor="#2b2b2b" Padding="0,0,0,0">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="50"/>
+					<RowDefinition Height="50"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*"/>
+				</Grid.ColumnDefinitions>
+				<StackLayout Grid.Row="0" Grid.ColumnSpan="2" Spacing="0">
+					<StackLayout Orientation="Horizontal" Spacing="0" BackgroundColor="#2b2b2b">
+						<Label x:Name="LabelCurrFolderName" IsVisible="True" Text="{Binding CurrFolderNameInfo}" HorizontalOptions="FillAndExpand" FontSize="18"
+					   FontAttributes="Bold" LineBreakMode="TailTruncation" Padding="15,0,5,0"
 					   BackgroundColor="Transparent" TextColor="#ebebeb"  VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
-				<Button TextColor="#ebebeb" BackgroundColor="#2b2b2b" HorizontalOptions="End"
-						BorderWidth="0" Text="&#xF1075;" WidthRequest="60"
+						<Frame x:Name="FrameSearchField" IsVisible="False" HorizontalOptions="FillAndExpand" Padding="5,0,5,0" BorderColor="Transparent" BackgroundColor="Transparent">
+							<Entry x:Name="EntrySearchField" TextChanged="EntrySearch_TextChanged" BackgroundColor="Transparent" TextColor="#ebebeb" FontSize="16"/>
+						</Frame>
+						<Button x:Name="ButtonSearch" TextColor="#ebebeb" BackgroundColor="#2b2b2b" HorizontalOptions="End"
+						BorderWidth="0" WidthRequest="50" HeightRequest="50" Clicked="ButtonSearchOpen_Clicked"
 						FontSize="22" FontFamily="materialdesignicons-webfont.ttf#Material Design Icons"/>
-			</StackLayout>
-			<StackLayout HorizontalOptions="FillAndExpand" Orientation="Horizontal" Grid.Row="1" Grid.ColumnSpan="2" Spacing="0" BackgroundColor="#2b2b2b">
-				<Button Clicked="ButtonUp_Clicked" TextColor="#ebebeb" HorizontalOptions="Start"
-						BackgroundColor="#2b2b2b" BorderWidth="0" 
-						Text="&#xF005D;" FontSize="22" WidthRequest="60"
+					</StackLayout>
+					<BoxView HeightRequest="1" HorizontalOptions="FillAndExpand" Color="#555555"/>
+				</StackLayout>
+				<StackLayout x:Name="MiddleLayout" Grid.Row="1" Grid.ColumnSpan="2" Spacing="0">
+					<StackLayout IsVisible="True" HorizontalOptions="FillAndExpand" Orientation="Horizontal" Spacing="0" BackgroundColor="#2b2b2b">
+						<Button x:Name="ButtonUp" Clicked="ButtonUp_Clicked" TextColor="#ebebeb" HorizontalOptions="Start"
+						BackgroundColor="#2b2b2b" BorderWidth="0" FontSize="22" WidthRequest="50"
 						FontFamily="materialdesignicons-webfont.ttf#Material Design Icons"/>
-				<Label x:Name="CurrFolderPath" Text="Current Folder Path" HorizontalOptions="FillAndExpand" FontSize="11" LineBreakMode="TailTruncation" Padding="10,0,5,0" MaxLines="2"
+						<Label x:Name="CurrFolderPathLabel" Text="{Binding CurrFolderPathInfo}" HorizontalOptions="FillAndExpand"
+					   FontSize="11" LineBreakMode="TailTruncation" Padding="10,0,5,0" MaxLines="2" HeightRequest="50"
 					   BackgroundColor="Transparent"  TextColor="#ebebeb" VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
-				<Button TextColor="#ebebeb"  BackgroundColor="#2b2b2b" HorizontalOptions="End"
-						BorderWidth="0"  Text="&#xF01D8;" WidthRequest="60"
+						<Button x:Name="ButtonAddFolder" TextColor="#ebebeb"  BackgroundColor="#2b2b2b" HorizontalOptions="End"
+						BorderWidth="0" WidthRequest="50" Clicked="ButtonAddFolder_Clicked"
 						FontSize="22" FontFamily="materialdesignicons-webfont.ttf#Material Design Icons"/>
-			</StackLayout>
-			<ListView Grid.Row="2" Grid.ColumnSpan="2" x:Name="DirectoryList" ItemSelected="OnListViewItemSelected" SeparatorColor="Black" BackgroundColor="#2b2b2b">
-				<ListView.ItemTemplate>
-					<DataTemplate>
-						<ViewCell>
-							<StackLayout Orientation="Horizontal" Padding="13,5,0,5">
-								<Image BackgroundColor="Transparent" HorizontalOptions="Start" VerticalOptions="Start">
-									<Image.Source>
-										<FontImageSource Glyph="{Binding Icon}"
+					</StackLayout>
+					<BoxView HeightRequest="1" HorizontalOptions="FillAndExpand" Color="#555555"/>
+				</StackLayout>
+				<ListView Grid.Row="2" Grid.ColumnSpan="2" x:Name="DirectoryList" ItemSelected="OnListViewItemSelected" SeparatorColor="Black" BackgroundColor="#2b2b2b">
+					<ListView.ItemTemplate>
+						<DataTemplate>
+							<ViewCell>
+								<StackLayout Orientation="Horizontal" Padding="10,5,0,5">
+									<Image BackgroundColor="Transparent" HorizontalOptions="Start" VerticalOptions="Start">
+										<Image.Source>
+											<FontImageSource Glyph="{Binding Icon}"
 											FontFamily="materialdesignicons-webfont.ttf#Material Design Icons"
 											Size="32" Color="{Binding IconColor}" />
-									</Image.Source>
-								</Image>
-								<StackLayout Orientation="Vertical" Spacing="0">
-									<Label Text="{Binding Name}" TextColor="#ebebeb" FontSize="12" LineBreakMode="TailTruncation" MaxLines="1"
+										</Image.Source>
+									</Image>
+									<StackLayout Orientation="Vertical" Spacing="0">
+										<Label Text="{Binding Name}" TextColor="#ebebeb" FontSize="12" LineBreakMode="TailTruncation" MaxLines="1"
 										   BackgroundColor="Transparent" VerticalOptions="Fill" HorizontalOptions="Fill"
 										   VerticalTextAlignment="Center" />
-									<Label Text="{Binding ItemInfo}" TextColor="#b8b8b8" FontSize="9" LineBreakMode="TailTruncation" MaxLines="1"
+										<Label Text="{Binding ItemInfo}" TextColor="#b8b8b8" FontSize="9" LineBreakMode="TailTruncation" MaxLines="1"
 										   BackgroundColor="Transparent" VerticalOptions="Fill" HorizontalOptions="Fill"
 										   VerticalTextAlignment="Start"/>
+									</StackLayout>
 								</StackLayout>
-							</StackLayout>
-						</ViewCell>
-					</DataTemplate>
-				</ListView.ItemTemplate>
-			</ListView>
-		</Grid>
+							</ViewCell>
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+			</Grid>
+			<StackLayout IsVisible="False" RelativeLayout.YConstraint="{ConstraintExpression Type=RelativeToView, ElementName=ContentGrid, Property=Height, Factor=0.07 }"  
+						 RelativeLayout.XConstraint="{ConstraintExpression Type=RelativeToView, ElementName=ContentGrid, Property=Width, Factor=0.64 }"
+						Spacing="1" BackgroundColor="Black" Padding="1,1,1,1">
+				<Button FontSize="10" Text="Copy" TextColor="#ebebeb" BackgroundColor="#2b2b2b"/>
+				<Button FontSize="10" Text="Rename" TextColor="#ebebeb" BackgroundColor="#2b2b2b"/>
+				<Button FontSize="10" Text="Info" TextColor="#ebebeb" BackgroundColor="#2b2b2b"/>
+			</StackLayout>
+		</RelativeLayout>
 	</ContentPage.Content>
 </ContentPage>
