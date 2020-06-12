@@ -46,7 +46,7 @@ namespace xFileBrowser.Resources {
 			{".xml", new FileAppearance("\U000F102B", Color.FromHex("00a0c4")) },
 			{".json", new FileAppearance("\U000F102B", Color.FromHex("9e7100")) },
 			{".txt", new FileAppearance("\U000F09EE", Color.FromHex("cfcfcf")) },
-			{".rtf", new FileAppearance("\U000F103E", Color.FromHex("9e7100")) },
+			{".rtf", new FileAppearance("\U000F103E", Color.FromHex("00bee8")) },
 			{".bin", new FileAppearance("\U000F0C7F", Color.FromHex("9e7100")) },
 			{".zip", new FileAppearance("\U000F07B9", Color.FromHex("9f00e8")) },
 			{".rar", new FileAppearance("\U000F07B9", Color.FromHex("9f00e8")) },

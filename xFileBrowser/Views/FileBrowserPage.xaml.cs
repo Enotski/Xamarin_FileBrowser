@@ -9,11 +9,16 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using xFileBrowser.Models;
 using xFileBrowser.Resources;
+using Android.Content;
+using Android.Views;
+using Android.Views.InputMethods;
+using Android.App;
 
 namespace xFileBrowser.Views {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class FileBrowserPage : ContentPage, INotifyPropertyChanged {
-		private bool isSearch = false;
+		private bool isSearchShown = false;
+		private bool isAddDirModalWinShown = false;
 		public static ObservableCollection<DirectoryItem> DirList { get; set; }
 		private string currFolPathInfo = "";
 		private string currFolNameInfo = "";
@@ -40,6 +45,17 @@ namespace xFileBrowser.Views {
 				return currFolNameInfo;
 			}
 		}
+		public bool AddDirModalWinShown {
+			set {
+				if (isAddDirModalWinShown != value) {
+					isAddDirModalWinShown = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("AddDirModalWinShown"));
+				}
+			}
+			get {
+				return isAddDirModalWinShown;
+			}
+		}
 		private DirectoryInfo currentDirectory = new DirectoryInfo("/storage");
 
 		public FileBrowserPage() {
@@ -52,9 +68,9 @@ namespace xFileBrowser.Views {
 
 		#region Page events
 		private void OnListViewItemSelected(object sender, SelectedItemChangedEventArgs e) {
-			if (isSearch) {
-				isSearch = false;
-				SetSearchUi(isSearch);
+			if (isSearchShown) {
+				isSearchShown = false;
+				SetSearchUi(isSearchShown);
 			}
 			if (e.SelectedItem != null)
 				GetDir((e.SelectedItem as DirectoryItem).FullPath);
@@ -91,7 +107,7 @@ namespace xFileBrowser.Views {
 		}
 		private void ButtonUp_Clicked(object sender, EventArgs e) {
 			try {
-				if (isSearch)
+				if (isSearchShown)
 					return;
 				if (currentDirectory.Name == "storage")
 					return;
@@ -103,10 +119,19 @@ namespace xFileBrowser.Views {
 		}
 		protected override bool OnBackButtonPressed() {
 			try {
-				if (isSearch) {
-					isSearch = false;
-					SetSearchUi(isSearch);
+				if (isSearchShown) {
+					isSearchShown = false;
+					SetSearchUi(isSearchShown);
 					GetDir(currentDirectory.GetFileSystemInfoFullName());
+					return true;
+				}
+				if (AddDirModalWinShown) {
+					EntryNewDirectoryField.Unfocus();
+					EntryNewDirectoryField.Text = "";
+					ModalBackGround.IsVisible = false;
+					Task.Delay(100).ContinueWith((args) => {
+						AddDirModalWinShown = false;
+					});
 					return true;
 				}
 				if (currentDirectory.Name == "storage")
@@ -119,9 +144,9 @@ namespace xFileBrowser.Views {
 			}
 		}
 		private async void ButtonSearchOpen_Clicked(object sender, EventArgs e) {
-			isSearch = !isSearch;
-			SetSearchUi(isSearch);
-			if (isSearch) {
+			isSearchShown = !isSearchShown;
+			SetSearchUi(isSearchShown);
+			if (isSearchShown) {
 				DirList.Clear();
 				// little hack for android
 				await Task.Run(() => {
@@ -131,11 +156,57 @@ namespace xFileBrowser.Views {
 				GetDir(currentDirectory.GetFileSystemInfoFullName());
 			}
 		}
-		private void ButtonAddFolder_Clicked(object sender, EventArgs e) {
-
+		private async void ButtonAddFolder_Clicked(object sender, EventArgs e) {
+			AddDirModalWinShown = !AddDirModalWinShown;
+			if (AddDirModalWinShown) {
+				ModalBackGround.IsVisible = true;
+				await Task.Run(() => {
+					Task.Delay(200).ContinueWith((args) => {
+						EntryNewDirectoryField.Focus();
+					});
+				});
+			}
 		}
-#endregion
-
+		private async void ModalBackGround_Tapped(object sender, EventArgs e) {
+			if (AddDirModalWinShown) {
+				EntryNewDirectoryField.Unfocus();
+				EntryNewDirectoryField.Text = "";
+				ModalBackGround.IsVisible = false;
+				await Task.Run(() => {
+					Task.Delay(100).ContinueWith((args) => {
+						AddDirModalWinShown = false;
+					});
+				});
+			}
+		}
+		private void BtnAcceptNewDirAdding_Clicked(object sender, EventArgs e) {
+			// ToDo: Show info message, can't be added in storage folder
+			var newDirName = "";
+			if (string.IsNullOrEmpty(EntryNewDirectoryField.Text) || string.IsNullOrWhiteSpace(EntryNewDirectoryField.Text))
+				return;
+			try {
+				newDirName = Path.Combine(currentDirectory.FullName, EntryNewDirectoryField.Text.Trim());
+				if (Directory.Exists(newDirName)) {
+					return;
+				}
+				// Try to create the directory.
+				DirectoryInfo di = Directory.CreateDirectory(newDirName);
+				// skip 'emulated' directory
+				GetDir(currentDirectory.GetFileSystemInfoFullName());
+				BtnBackFromNewDirAdding_Clicked(sender, e);
+			} catch (Exception ex) { }
+		}
+		private async void BtnBackFromNewDirAdding_Clicked(object sender, EventArgs e) {
+			EntryNewDirectoryField.Unfocus();
+			EntryNewDirectoryField.Text = "";
+			ModalBackGround.IsVisible = false;
+			await Task.Run(() => {
+				Task.Delay(100).ContinueWith((args) => {
+					AddDirModalWinShown = false;
+				});
+			});
+		}
+		#endregion
 
 		/// <summary>
 		/// Get directory items and set them to obs collection

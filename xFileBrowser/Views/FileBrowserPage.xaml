@@ -12,7 +12,7 @@
             Type=RelativeToParent,Property=Width,Factor=1,Constant=0}"
         RelativeLayout.HeightConstraint="{ConstraintExpression
             Type=RelativeToParent,Property=Height,Factor=1,Constant=0}"
-				RowSpacing="1" ColumnSpacing="0" BackgroundColor="#2b2b2b" Padding="0,0,0,0">
+				RowSpacing="1" ColumnSpacing="0" BackgroundColor="#2b2b2b" Padding="0,0,0,0" IsVisible="True">
 				<Grid.RowDefinitions>
 					<RowDefinition Height="50"/>
 					<RowDefinition Height="50"/>
@@ -74,6 +74,47 @@
 						</DataTemplate>
 					</ListView.ItemTemplate>
 				</ListView>
+			</Grid>
+			<BoxView x:Name="ModalBackGround"  IsVisible="False" RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent,Property=Width, Factor=1}"
+						 RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent,Property=Height,Factor=1}"
+						 RelativeLayout.YConstraint="{ConstraintExpression Type=RelativeToView, ElementName=ContentGrid, Property=Height, Factor=0}"  
+						 RelativeLayout.XConstraint="{ConstraintExpression Type=RelativeToView, ElementName=ContentGrid, Property=Width, Factor=0 }" BackgroundColor="#002033" Opacity="0.2
+					 ">
+				<BoxView.GestureRecognizers>
+					<TapGestureRecognizer Tapped="ModalBackGround_Tapped"/>
+				</BoxView.GestureRecognizers>
+			</BoxView>
+			<Grid x:Name="AddDirModalWindow" IsVisible="{Binding AddDirModalWinShown}" BackgroundColor="Transparent" ColumnSpacing="0" RowSpacing="0" Padding="0"
+						 RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent,Property=Width, Factor=0.69}"
+						 RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent,Property=Height,Factor=0.3}"
+						 RelativeLayout.YConstraint="{ConstraintExpression Type=RelativeToView, ElementName=ContentGrid, Property=Height, Factor=0.2}"  
+						 RelativeLayout.XConstraint="{ConstraintExpression Type=RelativeToView, ElementName=ContentGrid, Property=Width, Factor=0.15 }">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="60"/>
+					<RowDefinition Height="50"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*"/>
+				</Grid.ColumnDefinitions>
+				<BoxView BackgroundColor="Black" Grid.RowSpan="4" CornerRadius="3"/>
+				<Label Grid.Row="0" IsVisible="True" Text="Enter new folder name" HorizontalOptions="FillAndExpand" FontSize="18"
+					   FontAttributes="Bold" Padding="15,0,5,0"
+					   BackgroundColor="Transparent" TextColor="#ebebeb"  VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
+				<Frame Grid.Row="1" Margin="5,0,5,0" Padding="5,5,5,5" x:Name="FrameNewDirectoryField" IsVisible="True" HorizontalOptions="FillAndExpand" BorderColor="#b8b8b8" BackgroundColor="#303030">
+					<Entry x:Name="EntryNewDirectoryField" BackgroundColor="Transparent" TextColor="#ebebeb" FontSize="16" MaxLength="40"/>
+				</Frame>
+				<Grid Grid.Row="2" Padding="0,39,0,0" ColumnSpacing="5">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="60"/>
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition/>
+						<ColumnDefinition/>
+					</Grid.ColumnDefinitions>
+					<Button x:Name="BtnBackFromNewDirAdding" Clicked="BtnBackFromNewDirAdding_Clicked" Grid.Row="0" Grid.Column="0" Margin="5,0,0,0" FontSize="10" Text="Back" TextColor="#ebebeb" BackgroundColor="#2b2b2b"/>
+					<Button x:Name="BtnAcceptNewDirAdding" Clicked="BtnAcceptNewDirAdding_Clicked" Grid.Row="0" Grid.Column="1" Margin="0,0,5,0" FontSize="10" Text="OK" TextColor="#e8a600" BackgroundColor="#2b2b2b"/>
+				</Grid>
 			</Grid>
 			<StackLayout IsVisible="False" RelativeLayout.YConstraint="{ConstraintExpression Type=RelativeToView, ElementName=ContentGrid, Property=Height, Factor=0.07 }"  
 						 RelativeLayout.XConstraint="{ConstraintExpression Type=RelativeToView, ElementName=ContentGrid, Property=Width, Factor=0.64 }"
