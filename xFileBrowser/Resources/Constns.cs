@@ -1,9 +1,10 @@
-﻿using Xamarin.Forms;
-using System.Collections.Generic;
-using System.Text;
-using Android.Media;
+﻿using System.Collections.Generic;
+using Xamarin.Forms;
 
 namespace xFileBrowser.Resources {
+	/// <summary>
+	/// Class for constant variables and properties
+	/// </summary>
 	public static class Constns {
 		public const string iconFolder = "\U000F0256";
 		public const string iconFile = "\U000F0224";
@@ -12,6 +13,9 @@ namespace xFileBrowser.Resources {
 		public const string iconArrowUp = "\U000F005D";
 		public const string iconAddFolder = "\U000F0B9D";
 
+		/// <summary>
+		/// Dictionary of file extensions and applied styles
+		/// </summary>
 		public static readonly Dictionary<string, FileAppearance> fileApperanceDict = fileApperanceDict = new Dictionary<string, FileAppearance> {
 			{".mp3", new FileAppearance("\U000F0E2A", Color.FromHex("00bee8"))},
 			{".flac", new FileAppearance("\U000F0E2A", Color.FromHex("e8a600"))},
@@ -55,6 +59,9 @@ namespace xFileBrowser.Resources {
 			{".exe", new FileAppearance("\U000F107C", Color.FromHex("cfcfcf")) },
 		};
 
+		/// <summary>
+		/// Struct of file appearance
+		/// </summary>
 		public struct FileAppearance {
 			public string Icon { get; set; }
 			public Color Color { get; set; }

@@ -1,5 +1,4 @@
-﻿using Android.App;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -47,29 +46,11 @@ namespace xFileBrowser.Views {
 			InitializeComponent();
 			InitUiElems();
 			DirList = new ObservableCollection<DirectoryItem>();
-			GetDir(currentDirectory.GetDirrectoryInfoFullName());
+			GetDir(currentDirectory.GetFileSystemInfoFullName());
 			DirectoryList.ItemsSource = DirList;
 		}
-		private async void GetDir(string path) {
-			try {
-				if (File.Exists(path)) {
-					DirectoryList.SelectedItem = null;
-					return;
-				}
-				currentDirectory = new DirectoryInfo(path);
-				DirList = DirList ?? new ObservableCollection<DirectoryItem>();
-				DirList.Clear();
-				CurrFolderNameInfo = currentDirectory.Name == "0" ? Path.Combine(currentDirectory.Parent.Name, currentDirectory.Name) : currentDirectory.Name;
-				CurrFolderPathInfo = currentDirectory.GetDirrectoryInfoFullName();
 
-				await Task.Run(() => {
-					Utilits.SetDirectoriesToList(currentDirectory, DirList);
-				});
-			} catch (Exception ex) {
-				return;
-			}
-		}
-
+		#region Page events
 		private void OnListViewItemSelected(object sender, SelectedItemChangedEventArgs e) {
 			if (isSearch) {
 				isSearch = false;
@@ -78,18 +59,44 @@ namespace xFileBrowser.Views {
 			if (e.SelectedItem != null)
 				GetDir((e.SelectedItem as DirectoryItem).FullPath);
 		}
+		private async void EntrySearch_TextChanged(object sender, TextChangedEventArgs e) {
+			List<FileSystemInfo> baseStors = null;
+			List<FileSystemInfo> foundedItems = null;
+			CurrFolderPathInfo = "Founded - 0";
+			var searchText = "";
+			try {
+				DirList.Clear();
+				if (!string.IsNullOrEmpty(e.NewTextValue) || !string.IsNullOrWhiteSpace(e.NewTextValue)) {
+					searchText = e.NewTextValue.Trim().ToLower();
+					baseStors = new List<FileSystemInfo>();
+					foundedItems = new List<FileSystemInfo>();
+					// get storage folders, this allow to skip 'self directory'
+					baseStors.AddRange(new DirectoryInfo("/storage").GetFileSystemInfos());
+					await Task.Run(() => {
+						foreach (var item in baseStors) {
+							if (item.Name == "self")
+								continue;
+							// search all entries by full path and then skipping elements, witch names that don't match
+							foreach (var elem in Utilites.SearchAccessibleDirectoryItemsByFullName(item.GetFileSystemInfoFullName(), searchText).Distinct()) {
+								if (elem.Split('/').Last().ToLower().Contains(searchText))
+									foundedItems.Add(elem.Split('.').Count() > 1 ? new FileInfo(elem) as FileSystemInfo : new DirectoryInfo(elem));
+							}
+						}
+						Utilites.FillDirsCollectionByItems(foundedItems, DirList, true);
 
+						CurrFolderPathInfo = $"Founded - {DirList.Count()}";
+					});
+				}
+			} catch (Exception ex) { }
+		}
 		private void ButtonUp_Clicked(object sender, EventArgs e) {
 			try {
-				var dirs = CurrFolderPathInfo.Split(new[] { '/' }).ToList();
-				if (dirs.Last() == "storage")
+				if (isSearch)
 					return;
-				dirs.RemoveAt(dirs.Count - 1);
-				if (dirs.Count == 0)
+				if (currentDirectory.Name == "storage")
 					return;
-				if (dirs.Last() == "emulated")
-					dirs.RemoveAt(dirs.Count - 1);
-				GetDir(Path.Combine(dirs.ToArray()));
+				// skip 'emulated' directory
+				GetDir(currentDirectory.Parent.Name == "emulated" ? currentDirectory.Parent.Parent.FullName : currentDirectory.Parent.FullName);
 			} catch (Exception ex) {
 				return;
 			}
@@ -99,39 +106,59 @@ namespace xFileBrowser.Views {
 				if (isSearch) {
 					isSearch = false;
 					SetSearchUi(isSearch);
-					GetDir(currentDirectory.GetDirrectoryInfoFullName());
+					GetDir(currentDirectory.GetFileSystemInfoFullName());
 					return true;
 				}
-				var dirs = CurrFolderPathInfo.Split(new[] { '/' }).ToList();
-				if (dirs.Last() == "storage")
+				if (currentDirectory.Name == "storage")
 					return false;
-				dirs.RemoveAt(dirs.Count - 1);
-				if (dirs.Count == 0)
-					return false;
-				if (dirs.Last() == "emulated")
-					dirs.RemoveAt(dirs.Count - 1);
-				GetDir(Path.Combine(dirs.ToArray()));
+				// skip 'emulated' directory
+				GetDir(currentDirectory.Parent.Name == "emulated" ? currentDirectory.Parent.Parent.FullName : currentDirectory.Parent.FullName);
 				return true;
 			} catch (Exception ex) {
 				return true;
 			}
 		}
-
 		private async void ButtonSearchOpen_Clicked(object sender, EventArgs e) {
 			isSearch = !isSearch;
 			SetSearchUi(isSearch);
 			if (isSearch) {
 				DirList.Clear();
-				// little hack fo android
+				// little hack for android
 				await Task.Run(() => {
 					Task.Delay(200).ContinueWith((args) => EntrySearchField.Focus());
 				});
 			} else {
-				GetDir(currentDirectory.GetDirrectoryInfoFullName());
+				GetDir(currentDirectory.GetFileSystemInfoFullName());
 			}
 		}
 		private void ButtonAddFolder_Clicked(object sender, EventArgs e) {
 
+		}
+#endregion
+
+
+		/// <summary>
+		/// Get directory items and set them to obs collection
+		/// </summary>
+		/// <param name="root">Directory full path</param>
+		private async void GetDir(string root) {
+			try {
+				if (File.Exists(root)) {
+					DirectoryList.SelectedItem = null;
+					return;
+				}
+				currentDirectory = new DirectoryInfo(root);
+				DirList = DirList ?? new ObservableCollection<DirectoryItem>();
+				DirList.Clear();
+				CurrFolderNameInfo = currentDirectory.Name == "0" ? Path.Combine(currentDirectory.Parent.Name, currentDirectory.Name) : currentDirectory.Name;
+				CurrFolderPathInfo = currentDirectory.GetFileSystemInfoFullName();
+
+				await Task.Run(() => {
+					Utilites.SetDirectoriesToList(currentDirectory, DirList);
+				});
+			} catch (Exception ex) {
+				return;
+			}
 		}
 		private void SetSearchUi(bool isSearch) {
 			if (isSearch) {
@@ -148,7 +175,7 @@ namespace xFileBrowser.Views {
 				MiddleLayout.IsVisible = true;
 				ButtonAddFolder.IsVisible = true;
 				ButtonUp.IsVisible = true;
-				CurrFolderPathInfo = currentDirectory.GetDirrectoryInfoFullName();
+				CurrFolderPathInfo = currentDirectory.GetFileSystemInfoFullName();
 				ButtonSearch.Text = Constns.iconSearch;
 			}
 		}
@@ -157,59 +184,6 @@ namespace xFileBrowser.Views {
 			ButtonSearch.Text = Constns.iconSearch;
 			ButtonUp.Text = Constns.iconArrowUp;
 			ButtonAddFolder.Text = Constns.iconAddFolder;
-		}
-		private async void EntrySearch_TextChanged(object sender, TextChangedEventArgs e) {
-			List<FileSystemInfo> baseStors = null;
-			List<FileSystemInfo> result = null;
-			List<DirectoryItem> itemList = null;
-			CurrFolderPathInfo = "Founded - 0";
-			try {
-				DirList.Clear();
-				if (!string.IsNullOrEmpty(e.NewTextValue) || !string.IsNullOrWhiteSpace(e.NewTextValue)) {
-					baseStors = new List<FileSystemInfo>();
-					result = new List<FileSystemInfo>();
-					baseStors.AddRange(new DirectoryInfo("/storage").GetFileSystemInfos());
-					await Task.Run(() => {
-						foreach (var item in baseStors) {
-							if (item.Name == "self")
-								continue;
-							foreach (var elem in Utilits.SearchAccessibleFiles(item.Name == "emulated" ? item.FullName + "/0" : item.FullName, e.NewTextValue.Trim().ToLower())) {
-								result.Add(elem.Split('.').Count() > 1 ? new FileInfo(elem) as FileSystemInfo : new DirectoryInfo(elem));
-							}
-						}
-						itemList = new List<DirectoryItem>();
-						foreach (var item in result) {
-							if (item.Name != "self" && item.Name.ToLower().Contains(e.NewTextValue.Trim().ToLower()) && !DirList.Any(x => x.FullPath == item.FullName)) {
-								try {
-									if (item.Extension == "") {
-										var entriesCount = item.Name == "emulated" ? Directory.GetFileSystemEntries(item.FullName + @"/0").Count() : (item as DirectoryInfo).EnumerateFileSystemInfos().Count();
-										itemList.Add(new DirectoryItem {
-											FullPath = item.FullName.EndsWith("emulated") ? item.FullName + @"/0" : item.FullName,
-											Name = item.Name.EndsWith("emulated") ? item.Name + @"/0" : item.Name,
-											Icon = Constns.iconFolder,
-											ItemInfo = $"{item.FullName} | Objects - {entriesCount}",
-											IconColor = Color.FromHex("ebebeb"),
-											IsFolder = true
-										});
-									} else {
-										var found = Constns.fileApperanceDict.TryGetValue(item.Extension.ToLower(), out Constns.FileAppearance appearance);
-										itemList.Add(new DirectoryItem {
-											FullPath = item.FullName,
-											Name = item.Name,
-											Icon = found ? appearance.Icon : Constns.iconFile,
-											ItemInfo = $"{item.FullName} | {Utilits.SizeSuffix((item as FileInfo).Length, 2)}",
-											IconColor = found ? appearance.Color : Color.FromHex("#ebebeb"),
-										});
-									}
-								} catch (Exception ex) { }
-							}
-						}
-						CurrFolderPathInfo = $"Founded - {itemList.Count()}";
-						foreach (var item in itemList.OrderByDescending(x => x.IsFolder).ThenBy(x => x.Name))
-							DirList.Add(item);
-					});
-				}
-			} catch (Exception ex) { }
 		}
 	}
 }
