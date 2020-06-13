@@ -5,24 +5,28 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using xFileBrowser.Models;
 using xFileBrowser.Resources;
-using Android.Content;
-using Android.Views;
-using Android.Views.InputMethods;
-using Android.App;
 
 namespace xFileBrowser.Views {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class FileBrowserPage : ContentPage, INotifyPropertyChanged {
 		private bool isSearchShown = false;
 		private bool isAddDirModalWinShown = false;
-		public static ObservableCollection<DirectoryItem> DirList { get; set; }
+		private bool isErrorMessShown = false;
+		private bool isMenuShown = false;
 		private string currFolPathInfo = "";
 		private string currFolNameInfo = "";
+		private string errorMessage = "";
+
+		public static ObservableCollection<DirectoryItem> DirList { get; set; }
+		private DirectoryInfo currentDirectory = new DirectoryInfo("/storage");
+
 		public new event PropertyChangedEventHandler PropertyChanged;
+
 		public string CurrFolderPathInfo {
 			set {
 				if (currFolPathInfo != value) {
@@ -45,6 +49,17 @@ namespace xFileBrowser.Views {
 				return currFolNameInfo;
 			}
 		}
+		public string ErrorMessageText {
+			set {
+				if (errorMessage != value) {
+					errorMessage = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ErrorMessageText"));
+				}
+			}
+			get {
+				return errorMessage;
+			}
+		}
 		public bool AddDirModalWinShown {
 			set {
 				if (isAddDirModalWinShown != value) {
@@ -56,7 +71,28 @@ namespace xFileBrowser.Views {
 				return isAddDirModalWinShown;
 			}
 		}
-		private DirectoryInfo currentDirectory = new DirectoryInfo("/storage");
+		public bool ErrorMessageShown {
+			set {
+				if (isErrorMessShown != value) {
+					isErrorMessShown = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ErrorMessageShown"));
+				}
+			}
+			get {
+				return isErrorMessShown;
+			}
+		}
+		public bool MenuShown {
+			set {
+				if (isMenuShown != value) {
+					isMenuShown = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MenuShown"));
+				}
+			}
+			get {
+				return isMenuShown;
+			}
+		}
 
 		public FileBrowserPage() {
 			InitializeComponent();
@@ -126,12 +162,12 @@ namespace xFileBrowser.Views {
 					return true;
 				}
 				if (AddDirModalWinShown) {
-					EntryNewDirectoryField.Unfocus();
-					EntryNewDirectoryField.Text = "";
-					ModalBackGround.IsVisible = false;
-					Task.Delay(100).ContinueWith((args) => {
-						AddDirModalWinShown = false;
-					});
+					SetAddDirectoryUi(false);
+					return true;
+				}
+				if (ErrorMessageShown) {
+					ErrorMessageShown = false;
+					ErrorMessageText = "";
 					return true;
 				}
 				if (currentDirectory.Name == "storage")
@@ -157,30 +193,28 @@ namespace xFileBrowser.Views {
 			}
 		}
 		private async void ButtonAddFolder_Clicked(object sender, EventArgs e) {
+			if(currentDirectory.Name == "storage") {
+				ErrorMessageText = "Can't add new folder in current directory";
+				ErrorMessageShown = true;
+				await Task.Run(() => {
+					Task.Delay(3000).ContinueWith((args) => {
+						ErrorMessageShown = false;
+						ErrorMessageText = "";
+					});
+				});
+				return;
+			}
 			AddDirModalWinShown = !AddDirModalWinShown;
 			if (AddDirModalWinShown) {
-				ModalBackGround.IsVisible = true;
-				await Task.Run(() => {
-					Task.Delay(200).ContinueWith((args) => {
-						EntryNewDirectoryField.Focus();
-					});
-				});
+				SetAddDirectoryUi(true);
 			}
 		}
-		private async void ModalBackGround_Tapped(object sender, EventArgs e) {
+		private void ModalBackGround_Tapped(object sender, EventArgs e) {
 			if (AddDirModalWinShown) {
-				EntryNewDirectoryField.Unfocus();
-				EntryNewDirectoryField.Text = "";
-				ModalBackGround.IsVisible = false;
-				await Task.Run(() => {
-					Task.Delay(100).ContinueWith((args) => {
-						AddDirModalWinShown = false;
-					});
-				});
+				SetAddDirectoryUi(false);
 			}
 		}
 		private void BtnAcceptNewDirAdding_Clicked(object sender, EventArgs e) {
-			// ToDo: Show info message, can't be added in storage folder
 			var newDirName = "";
 			if (string.IsNullOrEmpty(EntryNewDirectoryField.Text) || string.IsNullOrWhiteSpace(EntryNewDirectoryField.Text))
 				return;
@@ -193,18 +227,25 @@ namespace xFileBrowser.Views {
 				DirectoryInfo di = Directory.CreateDirectory(newDirName);
 				// skip 'emulated' directory
 				GetDir(currentDirectory.GetFileSystemInfoFullName());
-				BtnBackFromNewDirAdding_Clicked(sender, e);
+
+				EntryNewDirectoryField.Unfocus();
+				EntryNewDirectoryField.Text = "";
+				ModalBackGround.IsVisible = false;
+				AddDirModalWinShown = false;
+
 			} catch (Exception ex) { }
 		}
-		private async void BtnBackFromNewDirAdding_Clicked(object sender, EventArgs e) {
-			EntryNewDirectoryField.Unfocus();
-			EntryNewDirectoryField.Text = "";
-			ModalBackGround.IsVisible = false;
-			await Task.Run(() => {
-				Task.Delay(100).ContinueWith((args) => {
-					AddDirModalWinShown = false;
-				});
-			});
+		private void BtnBackFromNewDirAdding_Clicked(object sender, EventArgs e) {
+			SetAddDirectoryUi(false);
+		}
+		private void ErrorMessageFrame_Tapped(object sender, EventArgs e) {
+			ErrorMessageShown = false;
+			ErrorMessageText = "";
+		}
+		private void ButtonMenu_Clicked(object sender, EventArgs e) {
+			MenuShown = !MenuShown;
+			//MenuPanel.IsVisible = MenuShown;
+			ButtonMenu.Text = MenuShown ? Constns.iconCloseRaw : Constns.iconMenu;
 		}
 		#endregion
 
@@ -232,29 +273,48 @@ namespace xFileBrowser.Views {
 			}
 		}
 		private void SetSearchUi(bool isSearch) {
-			if (isSearch) {
-				LabelCurrFolderName.IsVisible = false;
-				FrameSearchField.IsVisible = true;
-				ButtonAddFolder.IsVisible = false;
-				ButtonUp.IsVisible = false;
-				EntrySearchField.Text = "";
-				CurrFolderPathInfo = "Founded - 0";
-				ButtonSearch.Text = Constns.iconClose;
+			FrameSearchField.IsVisible = isSearch;
+			EntrySearchField.Text = "";
+
+			ButtonMenu.IsVisible = !isSearch;
+			LabelCurrFolderName.IsVisible = !isSearch;
+			ButtonAddFolder.IsVisible = !isSearch;
+			ButtonUp.IsVisible = !isSearch;
+
+			ButtonSearch.Text = isSearch ? Constns.iconCloseBox : Constns.iconSearch;
+			CurrFolderPathInfo = isSearch ? "Founded - 0" : currentDirectory.GetFileSystemInfoFullName();
+		}
+		private async void SetAddDirectoryUi(bool show) {
+			if (show) {
+				ModalBackGround.IsVisible = true;
+				await Task.Run(() => {
+					Task.Delay(200).ContinueWith((args) => {
+						EntryNewDirectoryField.Focus();
+					});
+				});
 			} else {
-				LabelCurrFolderName.IsVisible = true;
-				FrameSearchField.IsVisible = false;
-				MiddleLayout.IsVisible = true;
-				ButtonAddFolder.IsVisible = true;
-				ButtonUp.IsVisible = true;
-				CurrFolderPathInfo = currentDirectory.GetFileSystemInfoFullName();
-				ButtonSearch.Text = Constns.iconSearch;
+				EntryNewDirectoryField.Unfocus();
+				EntryNewDirectoryField.Text = "";
+				ModalBackGround.IsVisible = false;
+				await Task.Run(() => {
+					Task.Delay(100).ContinueWith((args) => {
+						AddDirModalWinShown = false;
+					});
+				});
 			}
+
 		}
 		private void InitUiElems() {
 			BindingContext = this;
 			ButtonSearch.Text = Constns.iconSearch;
 			ButtonUp.Text = Constns.iconArrowUp;
 			ButtonAddFolder.Text = Constns.iconAddFolder;
+			ButtonMenu.Text = Constns.iconMenu;
+			BtnTransfer.Text = Constns.iconTransfer;
+			BtnRemove.Text = Constns.iconRemove;
+			BtnCopy.Text = Constns.iconCopy;
+			BtnRename.Text = Constns.iconRename;
+			BtnInfo.Text = Constns.iconInfo;
 		}
 	}
 }

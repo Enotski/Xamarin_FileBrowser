@@ -3,11 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-
+			 xmlns:mr="clr-namespace:MR.Gestures;assembly=MR.Gestures;assembly=MR.Gestures"
              mc:Ignorable="d"
              x:Class="xFileBrowser.Views.FileBrowserPage">
 	<ContentPage.Content>
 		<RelativeLayout>
+			<RelativeLayout.GestureRecognizers>
+				<TapGestureRecognizer Tapped="ErrorMessageFrame_Tapped"/>
+			</RelativeLayout.GestureRecognizers>
 			<Grid x:Name="ContentGrid" RelativeLayout.WidthConstraint="{ConstraintExpression
             Type=RelativeToParent,Property=Width,Factor=1,Constant=0}"
         RelativeLayout.HeightConstraint="{ConstraintExpression
@@ -17,12 +20,16 @@
 					<RowDefinition Height="50"/>
 					<RowDefinition Height="50"/>
 					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
 				</Grid.RowDefinitions>
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="*"/>
 				</Grid.ColumnDefinitions>
-				<StackLayout Grid.Row="0" Grid.ColumnSpan="2" Spacing="0">
-					<StackLayout Orientation="Horizontal" Spacing="0" BackgroundColor="#2b2b2b">
+				<StackLayout Grid.Row="0" Spacing="0">
+					<StackLayout Orientation="Horizontal" IsVisible="True" Spacing="0" BackgroundColor="#2b2b2b">
+						<Button x:Name="ButtonMenu" Clicked="ButtonMenu_Clicked" TextColor="#ebebeb" HorizontalOptions="Start"
+						BackgroundColor="#2b2b2b" BorderWidth="0" FontSize="22" WidthRequest="50" HeightRequest="50"
+						FontFamily="materialdesignicons-webfont.ttf#Material Design Icons"/>
 						<Label x:Name="LabelCurrFolderName" IsVisible="True" Text="{Binding CurrFolderNameInfo}" HorizontalOptions="FillAndExpand" FontSize="18"
 					   FontAttributes="Bold" LineBreakMode="TailTruncation" Padding="15,0,5,0"
 					   BackgroundColor="Transparent" TextColor="#ebebeb"  VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
@@ -35,7 +42,7 @@
 					</StackLayout>
 					<BoxView HeightRequest="1" HorizontalOptions="FillAndExpand" Color="#555555"/>
 				</StackLayout>
-				<StackLayout x:Name="MiddleLayout" Grid.Row="1" Grid.ColumnSpan="2" Spacing="0">
+				<StackLayout x:Name="MiddleLayout" Grid.Row="1" Spacing="0">
 					<StackLayout IsVisible="True" HorizontalOptions="FillAndExpand" Orientation="Horizontal" Spacing="0" BackgroundColor="#2b2b2b">
 						<Button x:Name="ButtonUp" Clicked="ButtonUp_Clicked" TextColor="#ebebeb" HorizontalOptions="Start"
 						BackgroundColor="#2b2b2b" BorderWidth="0" FontSize="22" WidthRequest="50"
@@ -49,10 +56,10 @@
 					</StackLayout>
 					<BoxView HeightRequest="1" HorizontalOptions="FillAndExpand" Color="#555555"/>
 				</StackLayout>
-				<ListView Grid.Row="2" Grid.ColumnSpan="2" x:Name="DirectoryList" ItemSelected="OnListViewItemSelected" SeparatorColor="Black" BackgroundColor="#2b2b2b">
+				<ListView IsVisible="True" Grid.Row="2" x:Name="DirectoryList" ItemSelected="OnListViewItemSelected" SeparatorColor="Black" BackgroundColor="#2b2b2b">
 					<ListView.ItemTemplate>
 						<DataTemplate>
-							<ViewCell>
+							<ViewCell >
 								<StackLayout Orientation="Horizontal" Padding="10,5,0,5">
 									<Image BackgroundColor="Transparent" HorizontalOptions="Start" VerticalOptions="Start">
 										<Image.Source>
@@ -74,12 +81,34 @@
 						</DataTemplate>
 					</ListView.ItemTemplate>
 				</ListView>
+				<FlexLayout x:Name="MenuPanel" Grid.Row="3" IsVisible="{Binding MenuShown}" HeightRequest="50" BackgroundColor="#555555" Padding="2,2,0,2" JustifyContent="SpaceBetween">
+					<Button x:Name="BtnTransfer" Grid.Column="0" TextColor="#ebebeb"  BackgroundColor="#2b2b2b" Margin="0,0,2,0"
+							FontSize="22" FontFamily="materialdesignicons-webfont.ttf#Material Design Icons" />
+					<Button x:Name="BtnCopy" Grid.Column="2" TextColor="#ebebeb"  BackgroundColor="#2b2b2b" Margin="0,0,2,0"
+							FontSize="22" FontFamily="materialdesignicons-webfont.ttf#Material Design Icons" />
+					<Button x:Name="BtnRemove" Grid.Column="1" TextColor="#ebebeb"  BackgroundColor="#2b2b2b" Margin="0,0,2,0"
+							FontSize="22" FontFamily="materialdesignicons-webfont.ttf#Material Design Icons" />
+					<Button x:Name="BtnRename" Grid.Column="2" TextColor="#ebebeb"  BackgroundColor="#2b2b2b" Margin="0,0,2,0"
+							FontSize="22" FontFamily="materialdesignicons-webfont.ttf#Material Design Icons" />
+					<Button x:Name="BtnInfo" Grid.Column="2" TextColor="#ebebeb"  BackgroundColor="#2b2b2b" Margin="0,0,2,0"
+							FontSize="22" FontFamily="materialdesignicons-webfont.ttf#Material Design Icons" />
+				</FlexLayout>
 			</Grid>
+			<Frame IsVisible="{Binding ErrorMessageShown}" CornerRadius="3" BorderColor="Red" BackgroundColor="#2b2b2b" Padding="5,5,5,5"
+						 RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent,Property=Width, Factor=0.5}"
+						 RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent,Property=Height,Factor=0.09}"
+						 RelativeLayout.YConstraint="{ConstraintExpression Type=RelativeToView, ElementName=ContentGrid, Property=Height, Factor=0.15}"  
+						 RelativeLayout.XConstraint="{ConstraintExpression Type=RelativeToView, ElementName=ContentGrid, Property=Width, Factor=0.255 }">
+				<Label Text="{Binding ErrorMessageText}" TextColor="Red" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center"/>
+				<Frame.GestureRecognizers>
+					<TapGestureRecognizer Tapped="ErrorMessageFrame_Tapped"/>
+				</Frame.GestureRecognizers>
+			</Frame>
+
 			<BoxView x:Name="ModalBackGround"  IsVisible="False" RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent,Property=Width, Factor=1}"
 						 RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent,Property=Height,Factor=1}"
 						 RelativeLayout.YConstraint="{ConstraintExpression Type=RelativeToView, ElementName=ContentGrid, Property=Height, Factor=0}"  
-						 RelativeLayout.XConstraint="{ConstraintExpression Type=RelativeToView, ElementName=ContentGrid, Property=Width, Factor=0 }" BackgroundColor="#002033" Opacity="0.2
-					 ">
+						 RelativeLayout.XConstraint="{ConstraintExpression Type=RelativeToView, ElementName=ContentGrid, Property=Width, Factor=0 }" BackgroundColor="#002033" Opacity="0.2">
 				<BoxView.GestureRecognizers>
 					<TapGestureRecognizer Tapped="ModalBackGround_Tapped"/>
 				</BoxView.GestureRecognizers>
@@ -97,7 +126,7 @@
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="*"/>
 				</Grid.ColumnDefinitions>
-				<BoxView BackgroundColor="Black" Grid.RowSpan="4" CornerRadius="3"/>
+				<BoxView BackgroundColor="#555555" Grid.RowSpan="4" CornerRadius="3"/>
 				<Label Grid.Row="0" IsVisible="True" Text="Enter new folder name" HorizontalOptions="FillAndExpand" FontSize="18"
 					   FontAttributes="Bold" Padding="15,0,5,0"
 					   BackgroundColor="Transparent" TextColor="#ebebeb"  VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
@@ -116,13 +145,6 @@
 					<Button x:Name="BtnAcceptNewDirAdding" Clicked="BtnAcceptNewDirAdding_Clicked" Grid.Row="0" Grid.Column="1" Margin="0,0,5,0" FontSize="10" Text="OK" TextColor="#e8a600" BackgroundColor="#2b2b2b"/>
 				</Grid>
 			</Grid>
-			<StackLayout IsVisible="False" RelativeLayout.YConstraint="{ConstraintExpression Type=RelativeToView, ElementName=ContentGrid, Property=Height, Factor=0.07 }"  
-						 RelativeLayout.XConstraint="{ConstraintExpression Type=RelativeToView, ElementName=ContentGrid, Property=Width, Factor=0.64 }"
-						Spacing="1" BackgroundColor="Black" Padding="1,1,1,1">
-				<Button FontSize="10" Text="Copy" TextColor="#ebebeb" BackgroundColor="#2b2b2b"/>
-				<Button FontSize="10" Text="Rename" TextColor="#ebebeb" BackgroundColor="#2b2b2b"/>
-				<Button FontSize="10" Text="Info" TextColor="#ebebeb" BackgroundColor="#2b2b2b"/>
-			</StackLayout>
 		</RelativeLayout>
 	</ContentPage.Content>
 </ContentPage>

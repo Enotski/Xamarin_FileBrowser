@@ -8,10 +8,20 @@ namespace xFileBrowser.Resources {
 	public static class Constns {
 		public const string iconFolder = "\U000F0256";
 		public const string iconFile = "\U000F0224";
-		public const string iconClose = "\U000F0158";
+		public const string iconCloseRaw = "\U000F0156";
+		public const string iconCloseBox = "\U000F0158";
 		public const string iconSearch = "\U000F1075";
+		public const string iconMenu = "\U000F01D8";
 		public const string iconArrowUp = "\U000F005D";
 		public const string iconAddFolder = "\U000F0B9D";
+		public const string iconCheckAll = "\U000F0B9D";
+		public const string iconChecked = "\U000F0C52";
+		public const string iconUnchecked = "\U000F0131";
+		public const string iconTransfer = "\U000F0041";
+		public const string iconRemove = "\U000F0B89";
+		public const string iconCopy = "\U000F018F";
+		public const string iconRename = "\U000F03EB";
+		public const string iconInfo = "\U000F02FD";
 
 		/// <summary>
 		/// Dictionary of file extensions and applied styles
