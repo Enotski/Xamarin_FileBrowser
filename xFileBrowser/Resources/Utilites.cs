@@ -35,6 +35,30 @@ namespace xFileBrowser.Resources {
 			return string.Format("{0:n" + decimalPlaces + "} {1}", adjustedSize, SizeSuffixes[mag]);
 		}
 		/// <summary>
+		/// Get size of directory in b/kb/Mb etc
+		/// </summary>
+		/// <param name="value">Size of file in bytes</param>
+		/// <param name="decimalPlaces">Precision</param>
+		/// <returns>Formatted size</returns>
+		public static long SizeOfDirectory(string root) {
+			long result = 0;
+			foreach (var file in Directory.EnumerateFiles(root)) {
+				try {
+					result += new FileInfo(file).Length;
+				} catch {
+					continue;
+				}
+			}
+			foreach (var subDir in Directory.EnumerateDirectories(root)) {
+				try {
+					SizeOfDirectory(subDir);
+				} catch (UnauthorizedAccessException ex) {
+					continue;
+				}
+			}
+			return result;
+		}
+		/// <summary>
 		/// Search directory items by fullpath in dierectories recursively
 		/// </summary>
 		/// <param name="root">Root directory</param>
@@ -52,6 +76,7 @@ namespace xFileBrowser.Resources {
 						files.Add(subDir);
 					files.AddRange(SearchAccessibleDirectoryItemsByFullName(subDir, searchTerm));
 				} catch (UnauthorizedAccessException ex) {
+					continue;
 				}
 			}
 			return files;
@@ -89,16 +114,26 @@ namespace xFileBrowser.Resources {
 								Icon = Constns.iconFolder,
 								ItemInfo = forSearch ? $"{item.FullName} | {item.LastWriteTime}" : $"Objects - {entriesCount} | {item.LastWriteTime}",
 								IconColor = Color.FromHex("ebebeb"),
-								IsFolder = true
+								IsFolder = true,
+								 DateChange = item.LastWriteTime,
+								  ReadOnly = item.Attributes == FileAttributes.ReadOnly ? "Yes" : "No",
+								Hidden = item.Attributes == FileAttributes.Hidden ? "Yes" : "No",
+								Archive = item.Attributes == FileAttributes.Archive ? "Yes" : "No",
 							});
 						} else {
 							var found = Constns.fileApperanceDict.TryGetValue(item.Extension.ToLower(), out Constns.FileAppearance appearance);
+							var size = $"{((item as FileInfo) != null ? SizeSuffix((item as FileInfo)?.Length ?? 0, 2) : "size is not computed")}";
 							obsList.Add(new DirectoryItem {
 								FullPath = item.FullName,
 								Name = item.Name,
 								Icon = found ? appearance.Icon : Constns.iconFile,
-								ItemInfo = forSearch ? $"{item.FullName} | {item.LastWriteTime}" : $"{((item as FileInfo) != null ? SizeSuffix((item as FileInfo)?.Length ?? 0, 2) : "size is not computed")} | {item.LastWriteTime}",
+								ItemInfo = forSearch ? $"{item.FullName} | {item.LastWriteTime}" : $"{size} | {item.LastWriteTime}",
+								FormattedSize = size,
 								IconColor = found ? appearance.Color : Color.FromHex("ebebeb"),
+								DateChange = item.LastWriteTime,
+								ReadOnly = item.Attributes == FileAttributes.ReadOnly ? "Yes" : "No",
+								Hidden = item.Attributes == FileAttributes.Hidden ? "Yes" : "No",
+								Archive = item.Attributes == FileAttributes.Archive ? "Yes" : "No",
 							});
 						}
 					} catch (Exception ex) { }
