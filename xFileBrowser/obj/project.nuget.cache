@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "2KsAr+4RaIOFfn/j7j+ldqSLxJrScE1jZomP9o+MzucDKeMNo9CtoJPCTcQpmhxln+WrGFdLJFM3LyQ1hRXf8w==",
+  "dgSpecHash": "8kRgSGrTKiHiSHny2s8VIHWMJy5J1czTx6slcuOjMjjbv8r8+u2PMNlNg8aCiZTNM24+V6Lhg2Tk+atxHgeCZQ==",
   "success": true,
   "projectFilePath": "B:\\WorkShop\\xFileBrowser\\xFileBrowser\\xFileBrowser.csproj",
   "expectedPackageFiles": [
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\zabig\\.nuget\\packages\\mimetypesmap\\1.0.8\\mimetypesmap.1.0.8.nupkg.sha512",
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512",
     "C:\\Users\\zabig\\.nuget\\packages\\system.numerics.vectors\\4.5.0\\system.numerics.vectors.4.5.0.nupkg.sha512",
     "C:\\Microsoft\\Xamarin\\NuGet\\xamarin.essentials\\1.3.1\\xamarin.essentials.1.3.1.nupkg.sha512",

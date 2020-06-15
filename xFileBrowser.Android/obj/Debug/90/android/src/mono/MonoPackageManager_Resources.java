@@ -4,6 +4,7 @@ public class MonoPackageManager_Resources {
 		/* We need to ensure that "xFileBrowser.Android.dll" comes first in this list. */
 		"xFileBrowser.Android.dll",
 		"FormsViewGroup.dll",
+		"MimeTypesMap.dll",
 		"Xamarin.Android.Arch.Core.Common.dll",
 		"Xamarin.Android.Arch.Core.Runtime.dll",
 		"Xamarin.Android.Arch.Lifecycle.Common.dll",

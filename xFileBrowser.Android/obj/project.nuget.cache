@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "kYO3ZULchz5IHBW/G76Y18cp+I2TcHNOMQu7KotCCfvcZ704++26EwtbnFQG+QPn6uhzSuRP1SSI2DLovPdswA==",
+  "dgSpecHash": "XCk+czX2z/o0VObLfh5AtbbED3mNOkqQG7+1ZHqPPDiHQwYTH6fLJghJhTfU6PYd3HPycItn0q7Ws9A/WEUQZA==",
   "success": true,
   "projectFilePath": "B:\\WorkShop\\xFileBrowser\\xFileBrowser.Android\\xFileBrowser.Android.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\zabig\\.nuget\\packages\\mimetypesmap\\1.0.8\\mimetypesmap.1.0.8.nupkg.sha512",
     "C:\\Users\\zabig\\.nuget\\packages\\system.numerics.vectors\\4.5.0\\system.numerics.vectors.4.5.0.nupkg.sha512",
     "C:\\Microsoft\\Xamarin\\NuGet\\xamarin.android.arch.core.common\\1.1.1.3\\xamarin.android.arch.core.common.1.1.1.3.nupkg.sha512",
     "C:\\Microsoft\\Xamarin\\NuGet\\xamarin.android.arch.core.runtime\\1.1.1.3\\xamarin.android.arch.core.runtime.1.1.1.3.nupkg.sha512",

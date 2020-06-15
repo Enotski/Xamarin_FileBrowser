@@ -11,6 +11,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using xFileBrowser.Models;
 using xFileBrowser.Resources;
+using HeyRed.Mime;
 
 namespace xFileBrowser.Views {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
@@ -24,12 +25,16 @@ namespace xFileBrowser.Views {
 		private string currFolPathInfo = "";
 		private string currFolNameInfo = "";
 		private string errorMessage = "";
-
 		public static ObservableCollection<DirectoryItem> DirList { get; set; }
+		public static List<DirectoryItem> ItemsForTransfer = new List<DirectoryItem>();
 		private DirectoryInfo currentDirectory = new DirectoryInfo("/storage");
 
 		public new event PropertyChangedEventHandler PropertyChanged;
 
+		public IDocumentViewer docView = DependencyService.Get<IDocumentViewer>();
+		public bool RenameWindowShown { get; set; }
+		public bool IsTransferMode { get; set; }
+		public bool IsCopyMode { get; set; }
 		public string CurrFolderPathInfo {
 			set {
 				if (currFolPathInfo != value) {
@@ -146,7 +151,21 @@ namespace xFileBrowser.Views {
 				}
 			} catch (Exception ex) { }
 		}
-		private async void ButtonSearch_CheckAll_Clicked(object sender, EventArgs e) {
+		private async void ButtonSearch_CheckAll_Accept_Clicked(object sender, EventArgs e) {
+			if (IsTransferMode || IsCopyMode) {
+				await Task.Run(() => {
+					foreach (var item in ItemsForTransfer) {
+						MoveCopyDirItem(item.FullPath, Path.Combine(currentDirectory.FullName, item.Name), IsCopyMode);
+					}
+				}).ContinueWith((arg) => {
+					foreach (var item in DirList) {
+						item.ItemChecked = isAllChecked;
+					}
+					GetDir(currentDirectory.GetFileSystemInfoFullName());
+				});
+				SetTransferUi(false);
+				return;
+			}
 			if (MenuShown) {
 				isAllChecked = !isAllChecked;
 				await Task.Run(() => {
@@ -178,21 +197,14 @@ namespace xFileBrowser.Views {
 				SetAddDirectoryUi(true);
 			}
 		}
-		private async void ButtonMenu_Clicked(object sender, EventArgs e) {
+		private void ButtonMenu_Clicked(object sender, EventArgs e) {
 			MenuShown = !MenuShown;
-			DirectoryList.SelectionMode = MenuShown ? ListViewSelectionMode.None : ListViewSelectionMode.Single;
-			ButtonMenu.Text = MenuShown ? Constns.iconCloseRaw : Constns.iconMenu;
-			ButtonSearch_CheckAll.Text = MenuShown ? Constns.iconCheckAll : Constns.iconSearch;
-
-			ButtonUp.IsVisible = !MenuShown;
-			ButtonAddFolder.IsVisible = !MenuShown;
-
-			isAllChecked = false;
-			await Task.Run(() => {
-				foreach (var item in DirList) {
-					item.ItemChecked = isAllChecked;
-				}
-			});
+			if (IsTransferMode || IsCopyMode) {
+				IsTransferMode = false;
+				IsCopyMode = false;
+				SetTransferUi(false);
+			}
+			SetBottomMenuUi();
 		}
 		protected override bool OnBackButtonPressed() {
 			try {
@@ -202,7 +214,19 @@ namespace xFileBrowser.Views {
 					GetDir(currentDirectory.GetFileSystemInfoFullName());
 					return true;
 				} else if (AddDirModalWinShown) {
-					SetAddDirectoryUi(false);
+					if (RenameWindowShown)
+						SetRenameDirectoryUi(false);
+					else
+						SetAddDirectoryUi(false);
+					return true;
+				} else if (MenuShown) {
+					MenuShown = false;
+					SetBottomMenuUi();
+					return true;
+				} else if (IsTransferMode || IsCopyMode) {
+					IsTransferMode = false;
+					IsCopyMode = false;
+					SetTransferUi(false);
 					return true;
 				} else if (InfoWindowShown) {
 					SetInfoDirWindowUi(false);
@@ -234,30 +258,39 @@ namespace xFileBrowser.Views {
 		}
 		private void ModalBackGround_Tapped(object sender, EventArgs e) {
 			if (AddDirModalWinShown) {
-				SetAddDirectoryUi(false);
+				if (RenameWindowShown)
+					SetRenameDirectoryUi(false);
+				else
+					SetAddDirectoryUi(false);
 			} else if (InfoWindowShown) {
 				SetInfoDirWindowUi(false);
 			}
 		}
-		private void BtnAcceptNewDirAdding_Clicked(object sender, EventArgs e) {
+		private async void BtnAcceptNewDirAdding_Clicked(object sender, EventArgs e) {
 			var newDirName = "";
 			if (string.IsNullOrEmpty(EntryNewDirectoryField.Text) || string.IsNullOrWhiteSpace(EntryNewDirectoryField.Text))
 				return;
 			try {
 				newDirName = Path.Combine(currentDirectory.FullName, EntryNewDirectoryField.Text.Trim());
 				if (Directory.Exists(newDirName)) {
+					ShowErrorMessage($"Folder: [{newDirName}] already exist!");
 					return;
 				}
-				// Try to create the directory.
-				DirectoryInfo di = Directory.CreateDirectory(newDirName);
-				// skip 'emulated' directory
+				if (RenameWindowShown) {
+					await Task.Run(() => RenameFolder(DirList.FirstOrDefault(x => x.ItemChecked)?.FullPath, newDirName)).ContinueWith((arg) => {
+						if (!arg.Result)
+							ShowErrorMessage($"Something goes wrong");
+					});
+				} else {
+					// Try to create the directory.
+					DirectoryInfo di = Directory.CreateDirectory(newDirName);
+				}
 				GetDir(currentDirectory.GetFileSystemInfoFullName());
 
 				EntryNewDirectoryField.Unfocus();
 				EntryNewDirectoryField.Text = "";
 				ModalBackGround.IsVisible = false;
 				AddDirModalWinShown = false;
-
 			} catch (Exception ex) { }
 		}
 		private void BtnBackFromNewDirAdding_Clicked(object sender, EventArgs e) {
@@ -268,19 +301,24 @@ namespace xFileBrowser.Views {
 			ErrorMessageText = "";
 		}
 		private void ListViewItem_Tapped(object sender, EventArgs e) {
-			var context = (sender as ViewCell)?.BindingContext as DirectoryItem;
-			if (context == null)
-				return;
+			try {
+				var context = (sender as ViewCell)?.BindingContext as DirectoryItem;
+				if (context == null)
+					return;
 
-			if (MenuShown) {
-				context.ItemChecked = !context.ItemChecked;
-				return;
-			}
-			if (isSearchShown) {
-				isSearchShown = false;
-				SetSearchUi(isSearchShown);
-			}
-			GetDir(context.FullPath);
+				if (MenuShown) {
+					context.ItemChecked = !context.ItemChecked;
+					return;
+				}
+				if (isSearchShown) {
+					isSearchShown = false;
+					SetSearchUi(isSearchShown);
+				}
+				if (context.IsFolder)
+					GetDir(context.FullPath);
+				else
+					docView?.ShowDocumentFile(context.FullPath, MimeTypesMap.GetMimeType(context.FullPath));
+			} catch { }
 		}
 		private void ItemChecked_PropertyChanged(object sender, PropertyChangedEventArgs e) {
 			BtnTransfer.TextColor = DirList.Any(x => x.ItemChecked) ? Color.FromHex("ebebeb") : Color.FromHex("999");
@@ -297,8 +335,11 @@ namespace xFileBrowser.Views {
 				ShowErrorMessage("Can't transfer this directory");
 				return;
 			}
+			IsTransferMode = true;
+			ItemsForTransfer.Clear();
+			ItemsForTransfer.AddRange(DirList.Where(x => x.ItemChecked));
+			SetTransferUi(true);
 		}
-
 		private void BtnCopy_Clicked(object sender, EventArgs e) {
 			if (DirList.Where(x => x.ItemChecked).Count() == 0) {
 				return;
@@ -307,8 +348,11 @@ namespace xFileBrowser.Views {
 				ShowErrorMessage("Can't copy this directory");
 				return;
 			}
+			IsCopyMode = true;
+			ItemsForTransfer.Clear();
+			ItemsForTransfer.AddRange(DirList.Where(x => x.ItemChecked));
+			SetTransferUi(true);
 		}
-
 		private async void BtnRemove_Clicked(object sender, EventArgs e) {
 			if (DirList.Where(x => x.ItemChecked).Count() == 0) {
 				return;
@@ -333,9 +377,8 @@ namespace xFileBrowser.Views {
 				});
 			} catch (Exception ex) { }
 		}
-
 		private void BtnRename_Clicked(object sender, EventArgs e) {
-			if (DirList.Where(x => x.ItemChecked).Count() == 0) {
+			if (DirList.Where(x => x.ItemChecked).Count() != 1) {
 				return;
 			}
 			if (currentDirectory.Name == "storage") {
@@ -344,10 +387,9 @@ namespace xFileBrowser.Views {
 			}
 			AddDirModalWinShown = !AddDirModalWinShown;
 			if (AddDirModalWinShown) {
-				SetAddDirectoryUi(true);
+				SetRenameDirectoryUi(true, DirList.FirstOrDefault(x => x.ItemChecked)?.Name);
 			}
 		}
-
 		private void BtnInfo_Clicked(object sender, EventArgs e) {
 			if (DirList.Where(x => x.ItemChecked).Count() != 1) {
 				return;
@@ -398,8 +440,25 @@ namespace xFileBrowser.Views {
 			ButtonAddFolder.IsVisible = !isSearch;
 			ButtonUp.IsVisible = !isSearch;
 
-			ButtonSearch_CheckAll.Text = isSearch ? Constns.iconCloseBox : Constns.iconSearch;
+			ButtonSearch_CheckAll_Accept.Text = isSearch ? Constns.iconCloseBox : Constns.iconSearch;
 			CurrFolderPathInfo = isSearch ? "Founded - 0" : currentDirectory.GetFileSystemInfoFullName();
+		}
+		private void SetTransferUi(bool show) {
+			MenuShown = false;
+			ButtonUp.IsVisible = true;
+			isAllChecked = false;
+			if (show) {
+				DirectoryList.SelectionMode = ListViewSelectionMode.Single;
+				ButtonSearch_CheckAll_Accept.Text = Constns.iconCheck;
+				ButtonSearch_CheckAll_Accept.TextColor = Color.FromHex("e8a600");
+				ButtonMenu.TextColor = Color.FromHex("c40f02");
+			} else {
+				ButtonMenu.Text = Constns.iconMenu;
+				ButtonSearch_CheckAll_Accept.Text = Constns.iconSearch;
+				ButtonSearch_CheckAll_Accept.TextColor = Color.FromHex("ebebeb");
+				ButtonMenu.TextColor = Color.FromHex("ebebeb");
+				ButtonAddFolder.IsVisible = true;
+			}
 		}
 		private async void SetAddDirectoryUi(bool show) {
 			if (show) {
@@ -420,6 +479,29 @@ namespace xFileBrowser.Views {
 				});
 			}
 		}
+		private async void SetRenameDirectoryUi(bool show, string oldItemName = "") {
+			if (show) {
+				ModalBackGround.IsVisible = true;
+				RenameWindowShown = true;
+				LabelAddModalFolder.Text = oldItemName;
+				await Task.Run(() => {
+					Task.Delay(200).ContinueWith((args) => {
+						EntryNewDirectoryField.Focus();
+					});
+				});
+			} else {
+				EntryNewDirectoryField.Unfocus();
+				EntryNewDirectoryField.Text = "";
+				ModalBackGround.IsVisible = false;
+				RenameWindowShown = false;
+				LabelAddModalFolder.Text = "Enter name of new folder";
+				await Task.Run(() => {
+					Task.Delay(100).ContinueWith((args) => {
+						AddDirModalWinShown = false;
+					});
+				});
+			}
+		}
 		private void SetInfoDirWindowUi(bool show) {
 			if (show) {
 				InfoWindowShown = true;
@@ -428,11 +510,10 @@ namespace xFileBrowser.Views {
 				InfoWindowShown = false;
 				ModalBackGround.IsVisible = false;
 			}
-
 		}
 		private void InitUiElems() {
 			BindingContext = this;
-			ButtonSearch_CheckAll.Text = Constns.iconSearch;
+			ButtonSearch_CheckAll_Accept.Text = Constns.iconSearch;
 			ButtonUp.Text = Constns.iconArrowUp;
 			ButtonAddFolder.Text = Constns.iconAddFolder;
 			ButtonMenu.Text = Constns.iconMenu;
@@ -450,6 +531,21 @@ namespace xFileBrowser.Views {
 					ErrorMessageShown = false;
 					ErrorMessageText = "";
 				});
+			});
+		}
+		private async void SetBottomMenuUi() {
+			DirectoryList.SelectionMode = MenuShown ? ListViewSelectionMode.None : ListViewSelectionMode.Single;
+			ButtonMenu.Text = MenuShown ? Constns.iconCloseRaw : Constns.iconMenu;
+			ButtonSearch_CheckAll_Accept.Text = MenuShown ? Constns.iconCheckAll : Constns.iconSearch;
+
+			ButtonUp.IsVisible = !MenuShown;
+			ButtonAddFolder.IsVisible = !MenuShown;
+
+			isAllChecked = false;
+			await Task.Run(() => {
+				foreach (var item in DirList) {
+					item.ItemChecked = isAllChecked;
+				}
 			});
 		}
 		/// <summary>
@@ -496,6 +592,53 @@ namespace xFileBrowser.Views {
 				return true;
 			} catch {
 				return false;
+			}
+		}
+		private void MoveCopyDirItem(string oldDirPath, string newDirPath, bool copy = false) {
+			if (copy) {
+				DirectoryCopy(oldDirPath, newDirPath, true);
+			}
+			if (!Directory.Exists(newDirPath)) {
+				Directory.Move(oldDirPath, newDirPath);
+			}
+		}
+		private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs) {
+			DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+			DirectoryInfo[] dirs = dir.GetDirectories();
+
+			// If the source directory does not exist, throw an exception.
+			if (!dir.Exists) {
+				throw new DirectoryNotFoundException(
+					"Source directory does not exist or could not be found: "
+					+ sourceDirName);
+			}
+
+			// If the destination directory does not exist, create it.
+			if (!Directory.Exists(destDirName)) {
+				Directory.CreateDirectory(destDirName);
+			}
+
+			// Get the file contents of the directory to copy.
+			FileInfo[] files = dir.GetFiles();
+
+			foreach (FileInfo file in files) {
+				// Create the path to the new copy of the file.
+				string temppath = Path.Combine(destDirName, file.Name);
+
+				// Copy the file.
+				file.CopyTo(temppath, false);
+			}
+
+			// If copySubDirs is true, copy the subdirectories.
+			if (copySubDirs) {
+
+				foreach (DirectoryInfo subdir in dirs) {
+					// Create the subdirectory.
+					string temppath = Path.Combine(destDirName, subdir.Name);
+
+					// Copy the subdirectories.
+					DirectoryCopy(subdir.FullName, temppath, copySubDirs);
+				}
 			}
 		}
 	}

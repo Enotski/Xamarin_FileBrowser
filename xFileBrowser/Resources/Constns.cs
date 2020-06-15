@@ -15,8 +15,7 @@ namespace xFileBrowser.Resources {
 		public const string iconArrowUp = "\U000F005D";
 		public const string iconAddFolder = "\U000F0B9D";
 		public const string iconCheckAll = "\U000F012D";
-		public const string iconChecked = "\U000F0C52";
-		public const string iconUnchecked = "\U000F0131";
+		public const string iconCheck = "\U000F012C";
 		public const string iconTransfer = "\U000F0041";
 		public const string iconRemove = "\U000F0B89";
 		public const string iconCopy = "\U000F018F";

@@ -51,7 +51,7 @@ namespace xFileBrowser.Resources {
 			}
 			foreach (var subDir in Directory.EnumerateDirectories(root)) {
 				try {
-					SizeOfDirectory(subDir);
+					result += SizeOfDirectory(subDir);
 				} catch (UnauthorizedAccessException ex) {
 					continue;
 				}

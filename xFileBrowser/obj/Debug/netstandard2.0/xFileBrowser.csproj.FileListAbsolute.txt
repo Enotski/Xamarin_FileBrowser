@@ -11,11 +11,11 @@ B:\WorkShop\xFileBrowser\xFileBrowser\obj\Debug\netstandard2.0\App.xaml.g.cs
 B:\WorkShop\xFileBrowser\xFileBrowser\obj\Debug\netstandard2.0\Resources\DarkTheme.xaml.g.cs
 B:\WorkShop\xFileBrowser\xFileBrowser\obj\Debug\netstandard2.0\Resources\LightTheme.xaml.g.cs
 B:\WorkShop\xFileBrowser\xFileBrowser\obj\Debug\netstandard2.0\Views\FileBrowserPage.xaml.g.cs
+B:\WorkShop\xFileBrowser\xFileBrowser\obj\Debug\netstandard2.0\xFileBrowser.csproj.CoreCompileInputs.cache
 B:\WorkShop\xFileBrowser\xFileBrowser\obj\Debug\netstandard2.0\xFileBrowser.AssemblyInfoInputs.cache
 B:\WorkShop\xFileBrowser\xFileBrowser\obj\Debug\netstandard2.0\xFileBrowser.AssemblyInfo.cs
+B:\WorkShop\xFileBrowser\xFileBrowser\obj\Debug\netstandard2.0\XamlC.stamp
 B:\WorkShop\xFileBrowser\xFileBrowser\obj\Debug\netstandard2.0\xFileBrowser.csproj.CopyComplete
 B:\WorkShop\xFileBrowser\xFileBrowser\obj\Debug\netstandard2.0\xFileBrowser.dll
 B:\WorkShop\xFileBrowser\xFileBrowser\obj\Debug\netstandard2.0\ref\xFileBrowser.dll
 B:\WorkShop\xFileBrowser\xFileBrowser\obj\Debug\netstandard2.0\xFileBrowser.pdb
-B:\WorkShop\xFileBrowser\xFileBrowser\obj\Debug\netstandard2.0\xFileBrowser.csproj.CoreCompileInputs.cache
-B:\WorkShop\xFileBrowser\xFileBrowser\obj\Debug\netstandard2.0\XamlC.stamp

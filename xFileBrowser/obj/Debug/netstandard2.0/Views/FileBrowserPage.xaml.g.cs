@@ -35,7 +35,7 @@ namespace xFileBrowser.Views {
         private global::Xamarin.Forms.Entry EntrySearchField;
         
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Forms.Build.Tasks.XamlG", "2.0.0.0")]
-        private global::Xamarin.Forms.Button ButtonSearch_CheckAll;
+        private global::Xamarin.Forms.Button ButtonSearch_CheckAll_Accept;
         
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Forms.Build.Tasks.XamlG", "2.0.0.0")]
         private global::Xamarin.Forms.StackLayout MiddleLayout;
@@ -77,6 +77,9 @@ namespace xFileBrowser.Views {
         private global::Xamarin.Forms.Grid AddDirModalWindow;
         
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Forms.Build.Tasks.XamlG", "2.0.0.0")]
+        private global::Xamarin.Forms.Label LabelAddModalFolder;
+        
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Forms.Build.Tasks.XamlG", "2.0.0.0")]
         private global::Xamarin.Forms.Frame FrameNewDirectoryField;
         
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Forms.Build.Tasks.XamlG", "2.0.0.0")]
@@ -103,7 +106,7 @@ namespace xFileBrowser.Views {
             LabelCurrFolderName = global::Xamarin.Forms.NameScopeExtensions.FindByName<global::Xamarin.Forms.Label>(this, "LabelCurrFolderName");
             FrameSearchField = global::Xamarin.Forms.NameScopeExtensions.FindByName<global::Xamarin.Forms.Frame>(this, "FrameSearchField");
             EntrySearchField = global::Xamarin.Forms.NameScopeExtensions.FindByName<global::Xamarin.Forms.Entry>(this, "EntrySearchField");
-            ButtonSearch_CheckAll = global::Xamarin.Forms.NameScopeExtensions.FindByName<global::Xamarin.Forms.Button>(this, "ButtonSearch_CheckAll");
+            ButtonSearch_CheckAll_Accept = global::Xamarin.Forms.NameScopeExtensions.FindByName<global::Xamarin.Forms.Button>(this, "ButtonSearch_CheckAll_Accept");
             MiddleLayout = global::Xamarin.Forms.NameScopeExtensions.FindByName<global::Xamarin.Forms.StackLayout>(this, "MiddleLayout");
             ButtonUp = global::Xamarin.Forms.NameScopeExtensions.FindByName<global::Xamarin.Forms.Button>(this, "ButtonUp");
             CurrFolderPathLabel = global::Xamarin.Forms.NameScopeExtensions.FindByName<global::Xamarin.Forms.Label>(this, "CurrFolderPathLabel");
@@ -117,6 +120,7 @@ namespace xFileBrowser.Views {
             BtnInfo = global::Xamarin.Forms.NameScopeExtensions.FindByName<global::Xamarin.Forms.Button>(this, "BtnInfo");
             ModalBackGround = global::Xamarin.Forms.NameScopeExtensions.FindByName<global::Xamarin.Forms.BoxView>(this, "ModalBackGround");
             AddDirModalWindow = global::Xamarin.Forms.NameScopeExtensions.FindByName<global::Xamarin.Forms.Grid>(this, "AddDirModalWindow");
+            LabelAddModalFolder = global::Xamarin.Forms.NameScopeExtensions.FindByName<global::Xamarin.Forms.Label>(this, "LabelAddModalFolder");
             FrameNewDirectoryField = global::Xamarin.Forms.NameScopeExtensions.FindByName<global::Xamarin.Forms.Frame>(this, "FrameNewDirectoryField");
             EntryNewDirectoryField = global::Xamarin.Forms.NameScopeExtensions.FindByName<global::Xamarin.Forms.Entry>(this, "EntryNewDirectoryField");
             BtnBackFromNewDirAdding = global::Xamarin.Forms.NameScopeExtensions.FindByName<global::Xamarin.Forms.Button>(this, "BtnBackFromNewDirAdding");
