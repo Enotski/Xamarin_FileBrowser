@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using Xamarin.Forms;
 using xFileBrowser.Models;
 
 namespace xFileBrowser.Resources {
@@ -113,7 +112,7 @@ namespace xFileBrowser.Resources {
 								Name = item.GetFileSystemInfoName(),
 								Icon = Constns.iconFolder,
 								ItemInfo = forSearch ? $"{item.FullName} | {item.LastWriteTime}" : $"Objects - {entriesCount} | {item.LastWriteTime}",
-								IconColor = Color.FromHex("ebebeb"),
+								IconColor = DarkTheme.themeColors["PrimaryTextColor"],
 								IsFolder = true,
 								 DateChange = item.LastWriteTime,
 								  ReadOnly = item.Attributes == FileAttributes.ReadOnly ? "Yes" : "No",
@@ -129,7 +128,7 @@ namespace xFileBrowser.Resources {
 								Icon = found ? appearance.Icon : Constns.iconFile,
 								ItemInfo = forSearch ? $"{item.FullName} | {item.LastWriteTime}" : $"{size} | {item.LastWriteTime}",
 								FormattedSize = size,
-								IconColor = found ? appearance.Color : Color.FromHex("ebebeb"),
+								IconColor = found ? appearance.Color : DarkTheme.themeColors["PrimaryTextColor"],
 								DateChange = item.LastWriteTime,
 								ReadOnly = item.Attributes == FileAttributes.ReadOnly ? "Yes" : "No",
 								Hidden = item.Attributes == FileAttributes.Hidden ? "Yes" : "No",
@@ -158,5 +157,130 @@ namespace xFileBrowser.Resources {
 		public static string GetFileSystemInfoName(this FileSystemInfo info) {
 			return info.Name.EndsWith("emulated") ? Path.Combine(info.Name, "0") : info.Name;
 		}
+		/// <summary>
+		/// Rename file or directory
+		/// </summary>
+		/// <param name="oldName">Old name of item</param>
+		/// <param name="newName">New name of item</param>
+		/// <returns></returns>
+		public static bool RenameDirItem(string oldName, string newName) {
+			try {
+				if (string.IsNullOrWhiteSpace(oldName) ||
+					string.IsNullOrWhiteSpace(newName)) {
+					return false;
+				}
+				var oldItem = new DirectoryInfo(oldName);
+
+				if (oldItem.Extension != "") {
+					var file = new FileInfo(oldName);
+					if (File.Exists(newName))
+						return false;
+					File.Move(oldItem.FullName, newName + oldItem.Extension);
+					return true;
+				}
+
+				if (!oldItem.Exists) {
+					return false;
+				}
+
+				if (string.Equals(oldItem.Name, newName, StringComparison.OrdinalIgnoreCase)) {
+					//new folder name is the same with the old one.
+					return false;
+				}
+
+				string newDirectory;
+
+				if (oldItem.Parent == null) {
+					//root directory
+					newDirectory = Path.Combine(oldName, newName);
+				} else {
+					newDirectory = Path.Combine(oldItem.Parent.FullName, newName);
+				}
+
+				if (Directory.Exists(newDirectory)) {
+					//target directory already exists
+					return false;
+				}
+
+				oldItem.MoveTo(newDirectory);
+
+				return true;
+			} catch {
+				return false;
+			}
+		}
+		/// <summary>
+		/// Moving or copieng items
+		/// </summary>
+		/// <param name="oldDirPath">Path of old directory</param>
+		/// <param name="newDirPath">Path of new directory</param>
+		/// <param name="copy">Copy items to new place</param>
+		public static void MoveCopyDirItem(string oldDirPath, string newDirPath, bool copy = false) {
+			if (copy) {
+				DirectoryCopy(oldDirPath, newDirPath, true);
+			} else {
+				if (!Directory.Exists(newDirPath)) {
+					Directory.Move(oldDirPath, newDirPath);
+				}
+			}
+		}
+		/// <summary>
+		/// Method of copieng items
+		/// </summary>
+		/// <param name="sourceDirName">Name of source directory</param>
+		/// <param name="destDirName">Name of destenation directory</param>
+		/// <param name="copySubDirs">Perform recursively copieng</param>
+		private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs) {
+			DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+
+			// if item is file
+			if (dir.Extension != "") {
+				var file = new FileInfo(sourceDirName);
+				if (File.Exists(destDirName))
+					return;
+
+				// Copy the file.
+				file.CopyTo(destDirName, false);
+				return;
+			}
+
+			DirectoryInfo[] dirs = dir.GetDirectories();
+
+			// If the source directory does not exist, throw an exception.
+			if (!dir.Exists) {
+				throw new DirectoryNotFoundException(
+					"Source directory does not exist or could not be found: "
+					+ sourceDirName);
+			}
+
+			// If the destination directory does not exist, create it.
+			if (!Directory.Exists(destDirName)) {
+				Directory.CreateDirectory(destDirName);
+			}
+
+			// Get the file contents of the directory to copy.
+			FileInfo[] files = dir.GetFiles();
+
+			foreach (FileInfo file in files) {
+				// Create the path to the new copy of the file.
+				string temppath = Path.Combine(destDirName, file.Name);
+
+				// Copy the file.
+				file.CopyTo(temppath, false);
+			}
+
+			// If copySubDirs is true, copy the subdirectories.
+			if (copySubDirs) {
+
+				foreach (DirectoryInfo subdir in dirs) {
+					// Create the subdirectory.
+					string temppath = Path.Combine(destDirName, subdir.Name);
+
+					// Copy the subdirectories.
+					DirectoryCopy(subdir.FullName, temppath, copySubDirs);
+				}
+			}
+		}
+
 	}
 }

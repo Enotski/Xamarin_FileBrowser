@@ -1,9 +1,6 @@
-﻿using Android.App;
-using Android.Content;
+﻿using Android.Content;
 using System;
-using Xamarin.Essentials;
 using Xamarin.Forms;
-using Xamarin.Forms.Platform.Android;
 using xFileBrowser.Droid;
 using xFileBrowser.Models;
 

@@ -5,10 +5,9 @@ using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
 using Android.Widget;
-using System.Threading.Tasks;
 
 namespace xFileBrowser.Droid {
-	[Activity(Label = "xFileBrowser", Icon = "@drawable/icon", Theme = "@style/DarkTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
+    [Activity(Label = "xFileBrowser", Icon = "@drawable/icon", Theme = "@style/DarkTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
 	public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity {
 		protected override void OnCreate(Bundle savedInstanceState) {
 			TabLayoutResource = Resource.Layout.Tabbar;

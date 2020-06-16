@@ -7,21 +7,5 @@
              x:Class="xFileBrowser.App">
 	<Application.Resources>
 		<ResourceDictionary Source="Resources/DarkTheme.xaml" />
-		
-		<Style x:Key="PrimaryLabel"
-               TargetType="Label">
-			<Setter Property="TextColor"
-                    Value="{DynamicResource SecondaryTextColor}" />
-			<Setter Property="FontSize"
-                    Value="30" />
-		</Style>
-
-		<Style x:Key="SecondaryLabelStyle"
-               TargetType="Label">
-			<Setter Property="TextColor"
-                    Value="{DynamicResource PrimaryTextColor}" />
-			<Setter Property="FontSize"
-                    Value="25" />
-		</Style>
 	</Application.Resources>
 </Application>

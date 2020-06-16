@@ -8,17 +8,17 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: global::Xamarin.Forms.Xaml.XamlResourceIdAttribute("xFileBrowser.Resources.LightTheme.xaml", "Resources/LightTheme.xaml", typeof(global::xFileBrowser.Resources.LightTheme))]
+[assembly: global::Xamarin.Forms.Xaml.XamlResourceIdAttribute("xFileBrowser.Resources.DarkTheme1.xaml", "Resources/DarkTheme1.xaml", typeof(global::xFileBrowser.Resources.DarkTheme))]
 
 namespace xFileBrowser.Resources {
     
     
-    [global::Xamarin.Forms.Xaml.XamlFilePathAttribute("Resources\\LightTheme.xaml")]
-    public partial class LightTheme : global::Xamarin.Forms.ResourceDictionary {
+    [global::Xamarin.Forms.Xaml.XamlFilePathAttribute("Resources\\DarkTheme1.xaml")]
+    public partial class DarkTheme : global::Xamarin.Forms.ResourceDictionary {
         
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Forms.Build.Tasks.XamlG", "2.0.0.0")]
         private void InitializeComponent() {
-            global::Xamarin.Forms.Xaml.Extensions.LoadFromXaml(this, typeof(LightTheme));
+            global::Xamarin.Forms.Xaml.Extensions.LoadFromXaml(this, typeof(DarkTheme));
         }
     }
 }
