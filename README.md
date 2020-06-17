@@ -1,5 +1,7 @@
 # Xamarin_FileBrowser
  
+ This simple Xamarin project for android only. This is a study and sometimes there is not good code.
+ App allow:
   - Search files and folders;
   - Adding folders;
   - Transfer/copy, remove, rename files and folders, get info of them.
