@@ -106,7 +106,7 @@
       ]
     },
     "NETStandard.Library/2.0.3": {
-      "sha512": "st47PosZSHrjECdjeIzZQbzivYBJFv6P2nv4cj2ypdI204DO+vZ7l5raGMiX4eXMJ53RfOIg+/s4DHVZ54Nu2A==",
+      "sha512": "afGDJd416+1cyUUiJWgHiztGlTApyemCPm4U3JMWnu/CH/LdnAQfiLSIRrHt76vgogH1d0nSWk/V0YvWMbWKCA==",
       "type": "package",
       "path": "netstandard.library/2.0.3",
       "files": [
@@ -656,7 +656,7 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.201\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.302\\RuntimeIdentifierGraph.json"
       }
     }
   }

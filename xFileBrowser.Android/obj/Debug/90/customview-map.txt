@@ -23,11 +23,9 @@ color;obj\Debug\90\res\drawable\splash_screen.xml
 color;obj\Debug\90\res\values\colors.xml
 external-cache-path;B:\WorkShop\xFileBrowser\xFileBrowser.Android\obj\Debug\90\lp\38\jl\res\xml\xamarin_essentials_fileprovider_file_paths.xml
 external-cache-path;obj\Debug\90\res\xml\file_path.xml
-external-files-path;obj\Debug\90\res\drawable\file_path.xml
 external-files-path;obj\Debug\90\res\xml\file_path.xml
 external-media-path;obj\Debug\90\res\xml\file_path.xml
 external-path;B:\WorkShop\xFileBrowser\xFileBrowser.Android\obj\Debug\90\lp\38\jl\res\xml\xamarin_essentials_fileprovider_file_paths.xml
-external-path;obj\Debug\90\res\drawable\file_path.xml
 external-path;obj\Debug\90\res\xml\file_path.xml
 files-path;obj\Debug\90\res\xml\file_path.xml
 foreground;obj\Debug\90\res\mipmap-anydpi-v26\icon.xml
@@ -39,7 +37,6 @@ item;obj\Debug\90\res\values\styles.xml
 layer-list;obj\Debug\90\res\drawable\splash_screen.xml
 LinearLayout;B:\WorkShop\xFileBrowser\xFileBrowser.Android\obj\Debug\90\lp\39\jl\res\layout\bottomtablayout.xml
 paths;B:\WorkShop\xFileBrowser\xFileBrowser.Android\obj\Debug\90\lp\38\jl\res\xml\xamarin_essentials_fileprovider_file_paths.xml
-paths;obj\Debug\90\res\drawable\file_path.xml
 paths;obj\Debug\90\res\xml\file_path.xml
 resources;B:\WorkShop\xFileBrowser\xFileBrowser.Android\obj\Debug\90\lp\39\jl\res\values\styles.xml
 resources;obj\Debug\90\res\values\colors.xml
